@@ -1,6 +1,5 @@
 package flow.jfxcore.core;
 
-import flow.jfxcore.annotation.FXController;
 import flow.jfxcore.annotation.FXWindow;
 import flow.jfxcore.exception.ProtocolNotSupport;
 import flow.jfxcore.log.IPlusLogger;
@@ -51,19 +50,11 @@ public abstract class FXNotifyController {
     }
 
     public FXNotifyController() {
-        FXController fxController = null;
-        FXWindow fxWindow = null;
         Annotation[] annotations = getClass().getAnnotations();
         // Find FXController cn.edu.scau.biubiusuisui.annotation
         for (Annotation annotation : annotations) {
-            // 是否Controller
-            if (annotation.annotationType().equals(FXController.class)) {
-                fxController = (FXController) annotation;
-                boolean isController = true;
-            }
             // 添加赋予是否为窗口的逻辑
             if (annotation.annotationType().equals(FXWindow.class)) {
-                fxWindow = (FXWindow) annotation;
                 this.isWindow = true;
             }
         }
@@ -97,6 +88,14 @@ public abstract class FXNotifyController {
                 logger.error(e.getMessage());
                 e.printStackTrace();
             }
+        });
+
+        // resize 事件监听
+        this.stage.heightProperty().addListener((observableValue, number, t1) -> {
+            onResize(stage.getWidth(), stage.getWidth(), number, t1);
+        });
+        this.stage.widthProperty().addListener((observableValue, number, t1) -> {
+            onResize(number, t1, stage.getHeight(), stage.getHeight());
         });
         // 监听最小化窗口
         this.stage.iconifiedProperty().addListener((observable, oldValue, newValue) -> {
@@ -137,6 +136,7 @@ public abstract class FXNotifyController {
      */
     public void onHide() {}
 
+    public void onResize(Number oldWidth, Number newWidth, Number oldHeight, Number newHeight) {}
     /**
      * 唤起舞台
      */
@@ -215,6 +215,17 @@ public abstract class FXNotifyController {
 
     public final void setModality(Modality modality) {
         this.stage.initModality(modality);
+    }
+
+    /**
+     * 设置窗体是否能够改变大小
+     * @param bResizable
+     * @return 返回原窗体属性
+     */
+    public final boolean setResizable(boolean bResizable) {
+        boolean bOld = this.stage.isResizable();
+        this.stage.setResizable(bResizable);
+        return bOld;
     }
 
     @SuppressWarnings("unchecked")

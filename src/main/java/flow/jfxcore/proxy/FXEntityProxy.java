@@ -62,7 +62,7 @@ public class FXEntityProxy implements MethodInterceptor {
         if (fxFieldWrapper == null || property == null) { //非属性的getter或setter
             return revokeResult;
         }
-        Class type = fxFieldWrapper.getType();
+        Class<?> type = fxFieldWrapper.getType();
         if (methodName.startsWith("set")) {
             if (Boolean.class.equals(type) || boolean.class.equals(type)) {
                 ((SimpleBooleanProperty) property).set((Boolean) args[0]);
@@ -78,7 +78,7 @@ public class FXEntityProxy implements MethodInterceptor {
                 ((SimpleStringProperty) property).set((String) args[0]);
             }
         } else if (methodName.startsWith("add")) {
-            ((SimpleListProperty) (property)).add(args[0]);
+            ((SimpleListProperty) property).add(args[0]);
         } else if (methodName.startsWith("del")) {
             ((SimpleListProperty) (property)).remove(args[0]);
         } else if (methodName.startsWith("cls")) {

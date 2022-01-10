@@ -23,6 +23,8 @@ public class FXWindowParser {
 
         // 处理模态对话框设置
         fxControllerProxy.setModality(fxWindow.modality());
+        // 是否能够改变大小
+        fxControllerProxy.setResizable(fxWindow.resizable());
 
         // 处理窗体填充颜色
         Scene scene = stage.getScene();

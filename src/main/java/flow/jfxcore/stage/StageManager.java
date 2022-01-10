@@ -100,7 +100,7 @@ public class StageManager {
             String toControllerStr = fxRedirectParam.getToController();
             FXNotifyController toController = initWindows.get(toControllerStr);
             if (toController != null) {
-                List<FXNotifyController> controllers = FXPlusContext.getControllers(toController.getName());
+//                List<FXNotifyController> controllers = FXPlusContext.getControllers(toController.getName());
 //                if (controllers.size() > 0) {
 //                    FXBaseController newController = controllers.get(controllers.size() - 1);
 //                    toController = FXControllerFactory.getFXController(newController.getClass(), toControllerStr);
@@ -116,7 +116,9 @@ public class StageManager {
 
     public void showStage(String controllerName) {
         FXNotifyController controllerProxy = initWindows.get(controllerName);
-        controllerProxy.showStage();
+        if (controllerProxy != null) {
+            controllerProxy.showStage();
+        }
     }
 
     /**
@@ -135,8 +137,8 @@ public class StageManager {
         String[] paramsKV = paramsStr.split("&");
 
         FXRedirectParam fxRedirectParam = new FXRedirectParam(leftBase);
-        for (int i = 0; i < paramsKV.length; i++) {
-            String params[] = paramsKV[i].split("=");
+        for (String s : paramsKV) {
+            String[] params = s.split("=");
             if (params.length != 2) {
                 throw new InvalidURLException();
             } else {

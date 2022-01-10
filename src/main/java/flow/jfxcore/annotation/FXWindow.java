@@ -8,11 +8,7 @@ import javafx.stage.StageStyle;
 import java.lang.annotation.*;
 
 /**
- * @author jack
- * @author suisui
- * @version 1.0
- * @date 2019/6/25 1:36
- * @since JavaFX2.0 JDK1.8
+ * 窗体属性相关设置
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -22,7 +18,7 @@ public @interface FXWindow {
 
     double preHeight() default 0.0;
 
-    boolean resizable() default false;
+    boolean resizable() default true;
 
     boolean mainStage() default false;
 
@@ -36,6 +32,10 @@ public @interface FXWindow {
      */
     Modality modality() default Modality.NONE;
 
+    /**
+     * 设置窗体填充
+     * @return
+     */
     String fill() default "WHITE";
     /**
      * @description 图标URL
