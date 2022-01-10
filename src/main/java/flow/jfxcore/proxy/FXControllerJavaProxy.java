@@ -5,69 +5,55 @@ import flow.jfxcore.annotation.FXSender;
 import flow.jfxcore.core.FXNotifyController;
 import flow.jfxcore.dispatcher.MessageDispatcher;
 import flow.jfxcore.stage.StageManager;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
- * 负责拦截FXSender或FXRedirect的方法，并将结果发送给目标对象.
- * This proxy class intercept Methods that has special annotation such as
- * FXSender which is a mark for message queue
+ * java的代理只能代理方法，不能代理属性
  */
-public class FXControllerProxy<T extends FXNotifyController> implements MethodInterceptor {
+
+public class FXControllerJavaProxy<T> implements InvocationHandler {
 
     T target;
 
     @SuppressWarnings("unchecked")
-    public T getInstance(T target) {
+    public T getProxy(T target) {
         this.target = target;
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(this.target.getClass());
-        enhancer.setCallback(this);
-        Object proxy = enhancer.create();
-        // target.* -> proxy.*
-        inject(target, proxy);
-        return (T) proxy;
+        T proxy = (T) Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), this);
+//        inject(target, proxy);
+
+        return proxy;
     }
 
-    /**
-     * 运行FXSender的方法，并将结果发送给 FXSender指定的对象。
-     * @param o 为由CGLib动态生成的代理类实例
-     * @param method Method为上文中实体类所调用的被代理的方法引用
-     * @param objects Object[]为参数值列表
-     * @param methodProxy MethodProxy为生成的代理类对方法的代理引用
-     * @return
-     * @throws Throwable
-     */
     @Override
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        Object o1 = methodProxy.invokeSuper(o, objects);  //获取该方法运行后的结果
-        Annotation[] annotations = method.getDeclaredAnnotations();
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Object obj = method.invoke(target,args);
 
+        Annotation[] annotations = method.getDeclaredAnnotations();
         for (Annotation annotation : annotations) {
             if (FXSender.class.equals(annotation.annotationType())) {  // 拦截是否发送消息函数
                 FXSender fxSender = (FXSender) annotation;
-                String name = target.getName() + ":";
+                String name = ((FXNotifyController)target).getName() + ":";
                 if ("".equals(fxSender.name())) {
                     name += method.getName();
                 } else {
                     name += fxSender.name();
                 }
-                MessageDispatcher.getInstance().sendMessage(name, o1);
+                MessageDispatcher.getInstance().sendMessage(name, obj);
             }
             if (FXRedirect.class.equals((annotation.annotationType()))) {  //拦截是否重定向函数
                 FXRedirect fxRedirect = (FXRedirect) annotation;
                 if (fxRedirect.close()) {  //关闭原窗口
-                    StageManager.getInstance().closeStage(target.getName());
+                    StageManager.getInstance().closeStage(((FXNotifyController)target).getName());
                 }
-                StageManager.getInstance().redirectTo(o1);
+                StageManager.getInstance().redirectTo(obj);
             }
         }
-        return o1;
+        return obj;
     }
 
     /**
@@ -88,4 +74,5 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
             }
         }
     }
+
 }
