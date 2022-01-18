@@ -108,7 +108,8 @@ public class FXControllerFactory {
 
         if (fxBaseController != null) {
             FXControllerProxy<FXNotifyController> controllerProxy = new FXControllerProxy<>();
-            fxControllerProxy = controllerProxy.getInstance(fxBaseController); //产生代理从而实现赋能
+            fxControllerProxy = controllerProxy.getInstance(fxBaseController);
+            //产生代理从而实现赋能
             fxmlLoader.setController(fxControllerProxy);
         }
 

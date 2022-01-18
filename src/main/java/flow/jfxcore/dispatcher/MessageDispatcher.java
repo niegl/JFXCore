@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 消息注册、消息分发处理类。
+ * 消息能够发送成功的关键在于事件的发起者是是代理类，这样在方法调用时就可以进行拦截，从而实现消息的发送.
  */
 public class MessageDispatcher {
     private static final IPlusLogger logger = PlusLoggerFactory.getLogger(MessageDispatcher.class);

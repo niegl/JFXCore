@@ -27,7 +27,7 @@ import java.util.Map;
  */
 
 /**
- * 窗体事件消息通知的基类。这个类
+ * 窗体事件消息通知的基类。如果这个类的方法需要通过Cglib代理，那么方法不能设置成final方法。
  */
 public abstract class FXNotifyController {
     private static final IPlusLogger logger = PlusLoggerFactory.getLogger(FXNotifyController.class);
@@ -181,7 +181,7 @@ public abstract class FXNotifyController {
      * @return true--修改标题成功 false--修改失败
      * @version 1.3
      */
-    public final void setWindowTitle(String title) {
+    public void setWindowTitle(String title) {
         if (this.isWindow) {
             this.stage.setTitle(title);
             logger.info("setting title of window");
@@ -195,7 +195,7 @@ public abstract class FXNotifyController {
      *
      * @param icon String 图标URL地址，需要放在resources文件下或项目根目录下
      */
-    public final void setIcon(String icon) {
+    public void setIcon(String icon) {
         if (this.isWindow) {
             if (!"".equals(icon)) {
                 try {
@@ -213,7 +213,7 @@ public abstract class FXNotifyController {
         }
     }
 
-    public final void setModality(Modality modality) {
+    public void setModality(Modality modality) {
         this.stage.initModality(modality);
     }
 
@@ -222,7 +222,7 @@ public abstract class FXNotifyController {
      * @param bResizable
      * @return 返回原窗体属性
      */
-    public final boolean setResizable(boolean bResizable) {
+    public boolean setResizable(boolean bResizable) {
         boolean bOld = this.stage.isResizable();
         this.stage.setResizable(bResizable);
         return bOld;
