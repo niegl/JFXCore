@@ -6,6 +6,7 @@ import flow.jfxcore.entity.FXRedirectParam;
 import flow.jfxcore.exception.InvalidURLException;
 import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
+import javafx.stage.Stage;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -13,9 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author suisui
  * @version 1.1
- * @description 舞台管理器
+ * @description 管理FXNotifyController代理
  * @date 2019/12/3 15:43
  * @since JavaFX2.0 JDK1.8
  */

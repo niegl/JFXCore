@@ -10,13 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Context is use for storing Controller
- * In addition,you can store an instance into Session to use it everywhere
- *
- * @author jack
- * @version 1.0
- * @date 2019/6/26 12:28
- * @since JavaFX2.0 JDK1.8
+ * 原生FXNotifyController上下文管理
  */
 public class FXPlusContext {
 
@@ -31,14 +25,14 @@ public class FXPlusContext {
     private static Map<Object, FXEntityProxy> beanMap = new ConcurrentHashMap(); // Object注册为FXEntityObject
 
 
-    public static void registerController(FXNotifyController fxBaseController) {
-        List<FXNotifyController> controllers = controllerContext.get(fxBaseController.getName());
+    public static void registerController(FXNotifyController fxControllerProxy) {
+        List<FXNotifyController> controllers = controllerContext.get(fxControllerProxy.getName());
         if (controllers == null) {
             controllers = new LinkedList<>();
         }
-        controllers.add(fxBaseController);
+        controllers.add(fxControllerProxy);
         // @since 1.2.1 fix: 没有将controller真正注册到context的异常
-        controllerContext.put(fxBaseController.getName(), controllers);
+        controllerContext.put(fxControllerProxy.getName(), controllers);
     }
 
 

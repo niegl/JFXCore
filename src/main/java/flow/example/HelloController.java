@@ -31,4 +31,14 @@ public class HelloController extends FXNotifyController {
     public void onClose() {
         super.onClose();
     }
+
+    @Override
+    public void onHide() {
+        System.out.println("onHide();");
+    }
+
+    @Override
+    public void onResize(Number oldWidth, Number newWidth, Number oldHeight, Number newHeight) {
+        System.out.println(oldWidth + "," +newWidth+ "," +oldHeight+ "," +newHeight);
+    }
 }

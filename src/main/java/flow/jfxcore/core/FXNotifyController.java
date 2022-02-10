@@ -6,6 +6,9 @@ import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.utils.FileUtil;
 import flow.jfxcore.utils.StringUtil;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
@@ -110,10 +113,11 @@ public abstract class FXNotifyController {
                 e.printStackTrace();
             }
         });
+
     }
 
     /**
-     * @description 在加载页面之前的操作
+     * @description 在fxmlloader.load()之后的操作
      * @version 1.2
      */
     public void onLoad() {}
@@ -168,9 +172,15 @@ public abstract class FXNotifyController {
      * @description 最小化
      * @version 1.2
      */
-    public void hideStage() {
+    public void minimizeStage() {
         if (this.isWindow) {
             this.stage.setIconified(true);
+        }
+    }
+
+    public void hideStage() {
+        if (this.isWindow) {
+            this.stage.hide();
         }
     }
 
@@ -217,6 +227,9 @@ public abstract class FXNotifyController {
         this.stage.initModality(modality);
     }
 
+    public void setOwner(Stage parentStage) {
+        this.stage.initOwner(parentStage);
+    }
     /**
      * 设置窗体是否能够改变大小
      * @param bResizable

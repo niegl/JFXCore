@@ -13,4 +13,9 @@
       <module name="JFXCore" target="17" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="JFXCore" options="--add-exports javafx.graphics/com.sun.javafx.util=flow.jfxcore --add-exports javafx.base/com.sun.javafx.beans=flow.jfxcore --add-exports javafx.fxml/com.sun.javafx.fxml=flow.jfxcore --add-exports javafx.fxml/com.sun.javafx.fxml.expression=flow.jfxcore --add-exports javafx.base/com.sun.javafx=flow.jfxcore --add-exports javafx.base/com.sun.javafx.reflect=flow.jfxcore" />
+    </option>
+  </component>
 </project>

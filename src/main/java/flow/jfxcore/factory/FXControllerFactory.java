@@ -7,6 +7,7 @@ import flow.jfxcore.core.FXNotifyController;
 import flow.jfxcore.core.FXPlusContext;
 import flow.jfxcore.core.FXWindowParser;
 import flow.jfxcore.dispatcher.MessageDispatcher;
+import flow.jfxcore.fxextend.FXMLLoaderExt;
 import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.proxy.FXControllerProxy;
@@ -29,7 +30,7 @@ import java.lang.reflect.Field;
 public class FXControllerFactory {
     private static IPlusLogger logger = PlusLoggerFactory.getLogger(FXControllerFactory.class);
 
-//    private static final BeanBuilder BEAN_BUILDER = new FXBuilder();
+    private static final BeanBuilder BEAN_BUILDER = new FXBuilder();
     private static final FXWindowParser fxWindowAnnotationParser = new FXWindowParser();
 
 
@@ -80,11 +81,11 @@ public class FXControllerFactory {
      * @param controllerName
      * @return
      */
-    private static FXNotifyController getFxBaseController(Class clazz, String controllerName) {
-        return getFxBaseController0(clazz, controllerName);
+    private static FXNotifyController getFxBaseController(Class clazz, String controllerName, BeanBuilder beanBuilder) {
+        return getFxBaseController0(clazz, controllerName, beanBuilder);
     }
 
-    private static FXNotifyController getFxBaseController0(Class clazz, String controllerName) {
+    private static FXNotifyController getFxBaseController0(Class clazz, String controllerName, BeanBuilder beanBuilder) {
 
         FXController fxController = null;        //reflect and get FXController cn.edu.scau.biubiusuisui.annotation
         fxController = (FXController) clazz.getDeclaredAnnotation(FXController.class);
@@ -93,18 +94,13 @@ public class FXControllerFactory {
 
         if (fxController == null) return null;
 
-        FXMLLoader fxmlLoader;
+        FXMLLoaderExt fxmlLoader;
         logger.info("loading the FXML file of " + clazz.getName());
         String fxmlPathName = fxController.path();
-        try {
-            fxmlLoader = new FXMLLoader(clazz.getResource(fxmlPathName));
-            fxmlLoader.load();
-            fxBaseController = fxmlLoader.getController();
-        } catch (IOException e) {
-            logger.info("FXMLLoader get Resource failed! ");
-            e.printStackTrace();
-            return null;
-        }
+        fxmlLoader = new FXMLLoaderExt(clazz.getResource(fxmlPathName));
+
+        fxBaseController = (FXNotifyController) beanBuilder.getBean(clazz); //获取controller实例
+//            fxBaseController = fxmlLoader.getController();
 
         if (fxBaseController != null) {
             FXControllerProxy<FXNotifyController> controllerProxy = new FXControllerProxy<>();
@@ -114,10 +110,16 @@ public class FXControllerFactory {
         }
 
         if (fxControllerProxy != null) {
+            fxControllerProxy.onLoad(); //页面加载
+            try {
+                fxmlLoader.load();
+            } catch (IOException e) {
+                logger.info("FXMLLoader get Resource failed! ");
+                e.printStackTrace();
+                return null;
+            }
             fxControllerProxy.setRoot(fxmlLoader.getRoot());
             fxBaseController.setRoot(fxmlLoader.getRoot());
-
-            fxControllerProxy.onLoad(); //页面加载
 
             if (controllerName == null || controllerName.isEmpty()) controllerName = clazz.getName();
             fxControllerProxy.setName(controllerName);
@@ -194,16 +196,20 @@ public class FXControllerFactory {
     }
 
     public static FXNotifyController getFXController(Class clazz) {
-        return getFXController(clazz, (BeanBuilder) null);
+        return getFXController(clazz, BEAN_BUILDER);
     }
 
     public static FXNotifyController getFXController(Class clazz, BeanBuilder beanBuilder) {
-        FXNotifyController fxBaseController = getFXController(clazz, beanBuilder);
+        FXNotifyController fxBaseController = getFXController(clazz, null, beanBuilder);
         return fxBaseController;
     }
 
     public static FXNotifyController getFXController(Class clazz, String controllerName) {
-        FXNotifyController fxBaseController = getFxBaseController(clazz, controllerName);
+        return getFXController(clazz, controllerName, BEAN_BUILDER);
+    }
+
+    public static FXNotifyController getFXController(Class clazz, String controllerName, BeanBuilder beanBuilder) {
+        FXNotifyController fxBaseController = getFxBaseController(clazz, controllerName, beanBuilder);
         return fxBaseController;
     }
 

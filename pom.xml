@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>flow</groupId>
-    <artifactId>JFXCore</artifactId>
+    <artifactId>jfxcore</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>JFXCore</name>
 
