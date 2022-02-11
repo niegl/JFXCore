@@ -26,6 +26,9 @@ public class FXWindowParser {
         // 是否能够改变大小
         fxControllerProxy.setResizable(fxWindow.resizable());
 
+        if (fxWindow.maximize()) {
+            fxControllerProxy.maximize(true);
+        }
         // 处理窗体填充颜色
         Scene scene = stage.getScene();
         scene.setFill(Paint.valueOf(fxWindow.fill()));

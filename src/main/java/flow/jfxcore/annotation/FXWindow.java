@@ -27,6 +27,11 @@ public @interface FXWindow {
     String title();
 
     /**
+     * 是否全屏显示
+     */
+    boolean maximize() default false;
+
+    /**
      * 设置对话框的模态
      * @return
      */

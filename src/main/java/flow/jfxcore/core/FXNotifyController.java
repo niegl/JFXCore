@@ -250,6 +250,8 @@ public abstract class FXNotifyController {
         this.root = root;
     }
 
+    public void maximize(boolean fullScreen) { stage.setMaximized(fullScreen);}
+
     /**
      * 获取Controller名字
      *
