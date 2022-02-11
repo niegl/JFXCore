@@ -50,7 +50,7 @@ public class FXControllerJavaProxy<T> implements InvocationHandler {
                 if (fxRedirect.close()) {  //关闭原窗口
                     StageManager.getInstance().closeStage(((FXNotifyController)target).getName());
                 }
-                StageManager.getInstance().redirectTo(obj);
+                StageManager.getInstance().redirectTo(obj, null);
             }
         }
         return obj;

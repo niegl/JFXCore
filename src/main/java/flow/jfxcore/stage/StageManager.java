@@ -1,7 +1,6 @@
 package flow.jfxcore.stage;
 
 import flow.jfxcore.core.FXNotifyController;
-import flow.jfxcore.core.FXPlusContext;
 import flow.jfxcore.entity.FXRedirectParam;
 import flow.jfxcore.exception.InvalidURLException;
 import flow.jfxcore.log.IPlusLogger;
@@ -9,7 +8,6 @@ import flow.jfxcore.log.PlusLoggerFactory;
 import javafx.stage.Stage;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -73,7 +71,7 @@ public class StageManager {
      * @param redirectParams
      * @Description 跳转
      */
-    public void redirectTo(Object redirectParams) {
+    public void redirectTo(Object redirectParams, FXNotifyController ownerController) {
         FXRedirectParam fxRedirectParam = null;
         if (redirectParams instanceof String) {
             if (((String) redirectParams).contains("?")) { //有参数，query return "SuccessController?name=ss&psw=111"
@@ -88,27 +86,30 @@ public class StageManager {
         } else if (redirectParams instanceof FXRedirectParam) { // return FXRedirectParam
             fxRedirectParam = (FXRedirectParam) redirectParams;
         }
-        redirectWithParams(fxRedirectParam);
+        redirectWithParams(fxRedirectParam, ownerController);
     }
 
     /**
      * @param fxRedirectParam
      * @Description 携带参数跳转
      */
-    private void redirectWithParams(FXRedirectParam fxRedirectParam) {
+    private void redirectWithParams(FXRedirectParam fxRedirectParam, FXNotifyController ownerController) {
         if (fxRedirectParam != null) {
             String toControllerStr = fxRedirectParam.getToController();
             FXNotifyController toController = initWindows.get(toControllerStr);
             if (toController != null) {
-//                List<FXNotifyController> controllers = FXPlusContext.getControllers(toController.getName());
-//                if (controllers.size() > 0) {
-//                    FXBaseController newController = controllers.get(controllers.size() - 1);
-//                    toController = FXControllerFactory.getFXController(newController.getClass(), toControllerStr);
-////                    registerWindow(, toController);
-//                }
                 logger.debug("redirecting to " + toController.getName());
                 toController.setParam(fxRedirectParam.getParams());
                 toController.setQuery(fxRedirectParam.getQueryMap());
+                Stage toControllerStage = toController.getStage();
+                if (toControllerStage != null) {
+                    if (null == toControllerStage.getOwner()) {
+                        if (ownerController != null) {
+                            toController.setOwner(ownerController.getStage());
+                        }
+                    }
+                }
+
                 toController.showStage();
             }
         }
@@ -119,6 +120,11 @@ public class StageManager {
         if (controllerProxy != null) {
             controllerProxy.showStage();
         }
+    }
+
+    public FXNotifyController getControllerProxy(String controllerName) {
+        FXNotifyController controllerProxy = initWindows.get(controllerName);
+        return controllerProxy;
     }
 
     /**

@@ -12,6 +12,7 @@ import net.sf.cglib.proxy.MethodProxy;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * 负责拦截FXSender或FXRedirect的方法，并将结果发送给目标对象.
@@ -64,7 +65,11 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
                 if (fxRedirect.close()) {  //关闭原窗口
                     StageManager.getInstance().closeStage(target.getName());
                 }
-                StageManager.getInstance().redirectTo(o1);
+                if (fxRedirect.hasOwner()) {
+                    if (o instanceof FXNotifyController) StageManager.getInstance().redirectTo(o1, (FXNotifyController)o);
+                } else {
+                    StageManager.getInstance().redirectTo(o1, null);
+                }
             }
         }
         return o1;
@@ -75,17 +80,27 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
      * @param target 被代理对象
      * @param proxy 代理对象
      */
-    private void inject(Object target, Object proxy) {
+    public static void inject(Object target, Object proxy) {
         Class<?> clazz = target.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(target);
-                field.set(proxy, value);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+        while (clazz != null) {
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                //如：private、static、final等
+                int fieldValue = field.getModifiers();
+                //与某个具体的修饰符进行比较
+                if (Modifier.isFinal(fieldValue)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(target);
+                    field.set(proxy, value);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
+            clazz = clazz.getSuperclass();
         }
+
     }
 }
