@@ -90,8 +90,9 @@ public class StageManager {
     }
 
     /**
-     * @param fxRedirectParam
-     * @Description 携带参数跳转
+     * 携带参数跳转
+     * @param fxRedirectParam 参数
+     * @param ownerController  传递参数的窗体，在没有显示传递父窗体的情况下为默认的父窗体
      */
     private void redirectWithParams(FXRedirectParam fxRedirectParam, FXNotifyController ownerController) {
         if (fxRedirectParam != null) {

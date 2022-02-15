@@ -66,7 +66,12 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
                     StageManager.getInstance().closeStage(target.getName());
                 }
                 if (fxRedirect.hasOwner()) {
-                    if (o instanceof FXNotifyController) StageManager.getInstance().redirectTo(o1, (FXNotifyController)o);
+                    FXNotifyController proxyOwner = StageManager.getInstance().getControllerProxy(fxRedirect.owner());
+                    if (proxyOwner != null) {
+                        StageManager.getInstance().redirectTo(o1, proxyOwner);
+                    } else {
+                        if (o instanceof FXNotifyController) StageManager.getInstance().redirectTo(o1, (FXNotifyController)o);
+                    }
                 } else {
                     StageManager.getInstance().redirectTo(o1, null);
                 }

@@ -25,4 +25,10 @@ public @interface FXRedirect {
      * @return Modality.WINDOW_MODAL为true,其他为false.
      */
     boolean hasOwner() default false;
+
+    /**
+     * 设置父窗体，如果为上一个窗体可以不设置.
+     * @return
+     */
+    String owner() default "";
 }
