@@ -62,6 +62,11 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
             }
             if (FXRedirect.class.equals((annotation.annotationType()))) {  //拦截是否重定向函数
                 FXRedirect fxRedirect = (FXRedirect) annotation;
+
+                // 如果没有给任何的跳转参数，则不跳转
+                if (o1 == null) {
+                    continue;
+                }
                 if (fxRedirect.close()) {  //关闭原窗口
                     StageManager.getInstance().closeStage(target.getName());
                 }
