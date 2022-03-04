@@ -7,13 +7,12 @@ import flow.jfxcore.core.FXNotifyController;
 import flow.jfxcore.core.FXPlusContext;
 import flow.jfxcore.core.FXWindowParser;
 import flow.jfxcore.dispatcher.MessageDispatcher;
-import flow.jfxcore.fxextend.FXMLLoaderExt;
+import flow.jfxcore.loader.FXMLLoaderExt;
 import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.proxy.FXControllerProxy;
 import flow.jfxcore.stage.StageManager;
 import javafx.collections.ObservableMap;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -152,7 +151,7 @@ public class FXControllerFactory {
 
         if (fxControllerProxy == null) return null;
 
-        logger.info("creating window.....");
+//        logger.info("creating window.....");
         Stage stage = new Stage();
         fxControllerProxy.setStage(stage);
 

@@ -1,6 +1,7 @@
 package flow.jfxcore.core;
 
 import flow.jfxcore.annotation.FXWindow;
+import flow.jfxcore.context.GUIState;
 import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import javafx.scene.Scene;
@@ -13,7 +14,7 @@ public class FXWindowParser {
     private static final IPlusLogger logger = PlusLoggerFactory.getLogger(FXWindowParser.class);
 
     public void parse(Stage stage, FXNotifyController fxControllerProxy, FXWindow fxWindow) {
-        logger.info("parsing @FXWindow of class: " + fxControllerProxy.getName());
+//        logger.info("parsing @FXWindow of class: " + fxControllerProxy.getName());
 
         // 处理 title
         fxControllerProxy.setWindowTitle(fxWindow.title());

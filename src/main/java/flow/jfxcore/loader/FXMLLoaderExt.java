@@ -1,4 +1,4 @@
-package flow.jfxcore.fxextend;
+package flow.jfxcore.loader;
 
 /*
  * Copyright (c) 2010, 2021, Oracle and/or its affiliates. All rights reserved.
@@ -85,7 +85,7 @@ import com.sun.javafx.fxml.expression.Expression;
 import com.sun.javafx.fxml.expression.ExpressionValue;
 import com.sun.javafx.fxml.expression.KeyPath;
 import static com.sun.javafx.FXPermissions.MODIFY_FXML_CLASS_LOADER_PERMISSION;
-import com.sun.javafx.fxml.FXMLLoaderHelper;
+
 import com.sun.javafx.fxml.MethodHelper;
 import java.net.MalformedURLException;
 import java.security.AccessController;

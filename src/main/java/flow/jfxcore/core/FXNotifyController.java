@@ -1,14 +1,14 @@
 package flow.jfxcore.core;
 
 import flow.jfxcore.annotation.FXWindow;
+import flow.jfxcore.context.GUIState;
 import flow.jfxcore.exception.ProtocolNotSupport;
 import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.utils.FileUtil;
 import flow.jfxcore.utils.StringUtil;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
@@ -75,7 +75,7 @@ public abstract class FXNotifyController {
      * @version 1.2
      */
     public final void initLifeCycle() {
-        logger.info("init the life cycle of " + this.getName());
+
         this.stage.setOnShowing(event -> {
             try {
                 onShow();
@@ -84,12 +84,26 @@ public abstract class FXNotifyController {
                 e.printStackTrace();
             }
         });
+        this.stage.setOnHidden(windowEvent -> {
+            stage.close();
+        });
+
         this.stage.setOnCloseRequest(event -> {
             try {
                 onClose();
             } catch (Exception e) {
                 logger.error(e.getMessage());
                 e.printStackTrace();
+            }
+        });
+
+        // 当窗体为当前工作窗体时
+        this.stage.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                if (t1) {
+                    GUIState.setStage(stage);
+                }
             }
         });
 

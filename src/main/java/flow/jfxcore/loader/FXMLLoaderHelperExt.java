@@ -1,4 +1,4 @@
-package flow.jfxcore.fxextend;
+package flow.jfxcore.loader;
 
 import com.sun.javafx.util.Utils;
 

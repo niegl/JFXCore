@@ -47,16 +47,18 @@ public class FXRedirectParam {
     }
 
 
-    public void addParam(String key, Object param) {
+    public FXRedirectParam addParam(String key, Object param) {
         this.params.put(key, param);
+        return this;
     }
 
     public Object getParam(String key) {
         return this.params.get(key);
     }
 
-    public void addQuery(String key, Object param) {
+    public FXRedirectParam addQuery(String key, Object param) {
         this.query.put(key, param);
+        return this;
     }
 
     public Object getOneQuery(String key) {
