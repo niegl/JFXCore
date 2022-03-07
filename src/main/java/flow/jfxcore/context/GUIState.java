@@ -6,6 +6,9 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 
+/**
+ * 目前GUIState的赋值是在窗体focus事件中进行的。所以stage必须要在窗体显示完成以后才有效。
+ */
 public enum GUIState {
     INSTANCE;
 
