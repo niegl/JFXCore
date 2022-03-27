@@ -19,12 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * 消息能够发送成功的关键在于事件的发起者是是代理类，这样在方法调用时就可以进行拦截，从而实现消息的发送.
  */
 public class MessageDispatcher {
-    private static final IPlusLogger logger = PlusLoggerFactory.getLogger(MessageDispatcher.class);
 
     /**
      * Map<主题，订阅了主题的所有方法>
      */
-    private static final Map<String, List<MethodEntity<FXNotifyController>>> receivers = new ConcurrentHashMap<>();
+    private static final Map<String, List<MethodEntity<Object>>> receivers = new ConcurrentHashMap<>();
 
     private static MessageDispatcher messageQueue = null;
 
@@ -48,17 +47,16 @@ public class MessageDispatcher {
      * @param controllerProxy 基础controller代理
      * @description 注册消费者，即FXReceiver注解的method
      */
-    public void registerConsumer(FXNotifyController notifyController, FXNotifyController controllerProxy) {
+    public void registerConsumer(Object notifyController, Object controllerProxy) {
         Class clazz = notifyController.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getDeclaredAnnotations();
             for (Annotation annotation : annotations) {
                 if (FXReceiver.class.equals(annotation.annotationType())) {
-                    logger.info("registering consumer: " + controllerProxy.getName());
                     FXReceiver consumer = (FXReceiver) annotation;
-                    MethodEntity<FXNotifyController> fxMethodEntity = new MethodEntity<>(controllerProxy, method);
-                    List<MethodEntity<FXNotifyController>> fxMethodEntities = receivers.get(consumer.name());
+                    MethodEntity<Object> fxMethodEntity = new MethodEntity<>(controllerProxy, method);
+                    List<MethodEntity<Object>> fxMethodEntities = receivers.get(consumer.name());
                     if (fxMethodEntities == null) {
                         fxMethodEntities = new ArrayList<>();
                     }
@@ -75,14 +73,14 @@ public class MessageDispatcher {
      * @description 处理消息发送
      */
     public void sendMessage(String topic, Object msg) {
-        List<MethodEntity<FXNotifyController>> lists = receivers.get(topic);
+        List<MethodEntity<Object>> lists = receivers.get(topic);
         if (lists == null || lists.isEmpty()) return;
 
         for (var fxMethodEntity : lists) {
             Method method = fxMethodEntity.getMethod();
             try {
                 method.setAccessible(true);
-                FXNotifyController notifyController = fxMethodEntity.getNotifyController();
+                Object notifyController = fxMethodEntity.getNotifyController();
                 if (method.getParameterCount() == 0) {
                     method.invoke(notifyController);
                 } else {
