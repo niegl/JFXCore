@@ -6,7 +6,7 @@
 
     <groupId>flow</groupId>
     <artifactId>jfxcore</artifactId>
-    <version>17.0.2</version>
+    <version>18</version>
     <name>JFXCore</name>
 
     <properties>
@@ -18,12 +18,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>17.0.2</version>
+            <version>18</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>17.0.2</version>
+            <version>18</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>

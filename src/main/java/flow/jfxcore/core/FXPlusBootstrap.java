@@ -44,7 +44,7 @@ public class FXPlusBootstrap {
         IS_SCENE_BUILDER = false;
 //        FXPlusApplication.beanBuilder = beanBuilder;
         Annotation[] annotations = clazz.getDeclaredAnnotations();
-        logger.info("starting to scanning and registering controllers");
+
         for (Annotation annotation : annotations) {
             if (FXScan.class.equals(annotation.annotationType())) {
                 String[] dirs = ((FXScan) annotation).base();
@@ -54,7 +54,7 @@ public class FXPlusBootstrap {
                 }
                 Set<String> classNames = new HashSet<>();
                 for (String dir : sets) {
-                    logger.info("scanning directory: " + dir);
+
                     ClassUtil classUtil = new ClassUtil();
                     List<String> temps = null;
                     try {

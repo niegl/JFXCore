@@ -72,7 +72,7 @@ public class MessageDispatcher {
      * @param msg 消息内容
      * @description 处理消息发送
      */
-    public void sendMessage(String topic, Object msg) {
+    public void sendMessage(String topic, Object... msg) {
         List<MethodEntity<Object>> lists = receivers.get(topic);
         if (lists == null || lists.isEmpty()) return;
 
@@ -81,12 +81,12 @@ public class MessageDispatcher {
             try {
                 method.setAccessible(true);
                 Object notifyController = fxMethodEntity.getNotifyController();
-                if (method.getParameterCount() == 0) {
-                    method.invoke(notifyController);
-                } else {
+//                if (method.getParameterCount() == 0) {
+//                    method.invoke(notifyController);
+//                } else {
                     // 调起FXReceiver注解的方法
                     method.invoke(notifyController, msg);
-                }
+//                }
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }

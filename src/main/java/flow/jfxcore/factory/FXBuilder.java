@@ -18,7 +18,7 @@ public class FXBuilder implements BeanBuilder {
     public <T> T getBean(Class<T> type) {
         T object = null;
         try {
-            object = type.getDeclaredConstructor().newInstance();
+            object = type.getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
