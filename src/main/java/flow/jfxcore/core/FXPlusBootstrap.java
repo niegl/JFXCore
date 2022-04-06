@@ -9,6 +9,7 @@ import flow.jfxcore.log.IPlusLogger;
 import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.utils.ClassUtil;
 import flow.jfxcore.utils.FileUtil;
+import javafx.application.Platform;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
@@ -42,15 +43,17 @@ public class FXPlusBootstrap {
             String[] dirs = ((FXScan) annotation).base();
             for (String dir : dirs) {
                 ClassUtil classUtil = new ClassUtil();
-                try {
-                    List<String> temps = classUtil.scanAllClassName(dir);
-                    for (String className : temps) {
-                        logger.info("loading class: " + className);
-                        loadFXPlusClass(className, beanBuilder);
-                    }
-                } catch (UnsupportedEncodingException | ClassNotFoundException exception) {
-                    logger.error("{}", exception);
-                }
+                List<String> temps = classUtil.scanAllClassName(dir);
+                temps.forEach( className -> {
+                    logger.info("loading class: " + className);
+                    Platform.runLater(() -> {
+                        try {
+                            loadFXPlusClass(className, beanBuilder);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                });
             }
         }
     }

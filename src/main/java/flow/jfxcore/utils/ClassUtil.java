@@ -34,7 +34,7 @@ public class ClassUtil {
      * @param nameList 类名列表
      * @return 所有FXController的类名列表
      */
-    private List<String> scanAllClassName(String base, @NotNull List<String> nameList) throws UnsupportedEncodingException {
+    private List<String> scanAllClassName(String base, @NotNull List<String> nameList) {
         // 处理"."路径和”aclass.bclass“路径
         String splashPath = base;
         if (!base.equals(".")) {
@@ -46,7 +46,13 @@ public class ClassUtil {
             return null;
         }
 
-        String filePath = StringUtil.getRootPath(url);
+        String filePath = null;
+        try {
+            filePath = StringUtil.getRootPath(url);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return nameList;
+        }
         if (filePath.endsWith("jar")) {
             nameList = readFromJarDirectory(filePath, trimLeft(base, "."));
         } else {
@@ -63,7 +69,7 @@ public class ClassUtil {
         return nameList;
     }
 
-    public List<String> scanAllClassName(String base) throws UnsupportedEncodingException {
+    public List<String> scanAllClassName(String base) {
         return scanAllClassName(base, new LinkedList<>());
     }
 
