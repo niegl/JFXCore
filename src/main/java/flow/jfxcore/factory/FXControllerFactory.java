@@ -13,6 +13,7 @@ import flow.jfxcore.log.PlusLoggerFactory;
 import flow.jfxcore.proxy.FXControllerProxy;
 import flow.jfxcore.stage.StageManager;
 import javafx.collections.ObservableMap;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -81,16 +82,16 @@ public class FXControllerFactory {
      * @param controllerName
      * @return
      */
-    private static FXNotifyController getFxBaseController(Class clazz, String controllerName, BeanBuilder beanBuilder) {
+    private static <T extends FXNotifyController> T getFxBaseController(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
         return getFxBaseController0(clazz, controllerName, beanBuilder);
     }
 
-    private static FXNotifyController getFxBaseController0(Class clazz, String controllerName, BeanBuilder beanBuilder) {
+    private static <T extends FXNotifyController> T getFxBaseController0(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
 
         FXController fxController = null;        //reflect and get FXController cn.edu.scau.biubiusuisui.annotation
         fxController = (FXController) clazz.getDeclaredAnnotation(FXController.class);
-        FXNotifyController fxBaseController = null;
-        FXNotifyController fxControllerProxy = null;
+        T fxBaseController;
+        T fxControllerProxy = null;
 
         if (fxController == null) return null;
 
@@ -99,12 +100,12 @@ public class FXControllerFactory {
         String fxmlPathName = fxController.path();
         fxmlLoader = new FXMLLoaderExt(clazz.getResource(fxmlPathName));
 
-        fxBaseController = (FXNotifyController) beanBuilder.getBean(clazz); //获取controller实例
+        fxBaseController = beanBuilder.getBean(clazz); //获取controller实例
         if (fxBaseController != null) {
             if (controllerName == null || controllerName.isEmpty()) controllerName = clazz.getName();
             fxBaseController.setName(controllerName);
 
-            FXControllerProxy<FXNotifyController> controllerProxy = new FXControllerProxy<>();
+            FXControllerProxy<T> controllerProxy = new FXControllerProxy<>();
             fxControllerProxy = controllerProxy.getInstance(fxBaseController);
             //产生代理从而实现赋能
             fxmlLoader.setController(fxControllerProxy);
@@ -120,7 +121,7 @@ public class FXControllerFactory {
                 return null;
             }
             fxControllerProxy.setRoot(fxmlLoader.getRoot());
-            fxBaseController.setRoot(fxmlLoader.getRoot());
+//            fxBaseController.setRoot(fxmlLoader.getRoot());
 
             register(clazz, fxBaseController, fxControllerProxy);
         }
@@ -200,13 +201,12 @@ public class FXControllerFactory {
         return fxBaseController;
     }
 
-    public static FXNotifyController getFXController(Class clazz, String controllerName) {
+    public static /*FXNotifyController*/<T  extends FXNotifyController> T getFXController(Class<T> clazz, String controllerName) {
         return getFXController(clazz, controllerName, BEAN_BUILDER);
     }
 
-    public static FXNotifyController getFXController(Class clazz, String controllerName, BeanBuilder beanBuilder) {
-        FXNotifyController fxBaseController = getFxBaseController(clazz, controllerName, beanBuilder);
-        return fxBaseController;
+    public static <T extends FXNotifyController> T getFXController(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
+        return getFxBaseController(clazz, controllerName, beanBuilder);
     }
 
 
