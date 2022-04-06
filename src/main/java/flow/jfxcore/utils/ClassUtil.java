@@ -1,5 +1,7 @@
 package flow.jfxcore.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,6 +11,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static flow.jfxcore.utils.StringUtil.trimLeft;
 
 /**
  * @author jack
@@ -30,28 +34,37 @@ public class ClassUtil {
      * @param nameList 类名列表
      * @return 所有FXController的类名列表
      */
-    private List<String> getAllFXControllerClassName(String base, List<String> nameList) throws UnsupportedEncodingException {
-        String splashPath = StringUtil.dotToSplash(base);
+    private List<String> scanAllClassName(String base, @NotNull List<String> nameList) throws UnsupportedEncodingException {
+        // 处理"."路径和”aclass.bclass“路径
+        String splashPath = base;
+        if (!base.equals(".")) {
+            splashPath = StringUtil.dotToSplash(base);
+        }
+
         URL url = classLoader.getResource(splashPath);
+        if (url == null) {
+            return null;
+        }
+
         String filePath = StringUtil.getRootPath(url);
-        List<String> names = null;
         if (filePath.endsWith("jar")) {
-            nameList = readFromJarDirectory(filePath, base);
+            nameList = readFromJarDirectory(filePath, trimLeft(base, "."));
         } else {
-            names = readFromDirectory(filePath);
+            List<String> names = readFromDirectory(filePath);
             for (String name : names) {
                 if (isClassFile(name)) {
-                    nameList.add(toFullyQualifiedName(name, base));
+                    nameList.add(toFullyQualifiedName(name, trimLeft(base, ".")));
                 } else if (isDirectory(name)) {
-                    nameList = getAllFXControllerClassName(base + "." + name, nameList);
+                    nameList = scanAllClassName(trimLeft(base + "." + name, "."), nameList);
                 }
             }
         }
+
         return nameList;
     }
 
     public List<String> scanAllClassName(String base) throws UnsupportedEncodingException {
-        return getAllFXControllerClassName(base, new LinkedList<>());
+        return scanAllClassName(base, new LinkedList<>());
     }
 
     private static String toFullyQualifiedName(String shortName, String basePackage) {

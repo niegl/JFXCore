@@ -24,14 +24,7 @@ import java.util.Set;
  */
 public class FXPlusBootstrap {
     private static final IPlusLogger logger = PlusLoggerFactory.getLogger(FXPlusBootstrap.class);
-
-//    private static FXWindowParser windowAnnotationParser = new FXWindowParser();
-
-    private static BeanBuilder DEFAULT_BEAN_FACTORY = new FXBuilder();
-
-//    private static BeanBuilder beanBuilder;
-
-    public static boolean IS_SCENE_BUILDER = true;
+    private static final BeanBuilder DEFAULT_BEAN_FACTORY = new FXBuilder();
 
     public static void start(Class clazz, BeanBuilder beanBuilder) {
         logger.info("starting JavaFX-Plus Application");
@@ -41,31 +34,22 @@ public class FXPlusBootstrap {
             logger.error("\n read classpath:banner.txt error, you can ignore it");
         }
 
-        IS_SCENE_BUILDER = false;
-//        FXPlusApplication.beanBuilder = beanBuilder;
         Annotation[] annotations = clazz.getDeclaredAnnotations();
-
         for (Annotation annotation : annotations) {
-            if (FXScan.class.equals(annotation.annotationType())) {
-                String[] dirs = ((FXScan) annotation).base();
-                Set<String> sets = new HashSet<>();
-                for (String dir : dirs) {
-                    sets.add(dir);
-                }
-                Set<String> classNames = new HashSet<>();
-                for (String dir : sets) {
-
-                    ClassUtil classUtil = new ClassUtil();
-                    List<String> temps = null;
-                    try {
-                        temps = classUtil.scanAllClassName(dir);
-                        for (String className : temps) {
-                            logger.info("loading class: " + className);
-                            loadFXPlusClass(className, beanBuilder);
-                        }
-                    } catch (UnsupportedEncodingException | ClassNotFoundException exception) {
-                        logger.error("{}", exception);
+            if (!FXScan.class.equals(annotation.annotationType())) {
+                continue;
+            }
+            String[] dirs = ((FXScan) annotation).base();
+            for (String dir : dirs) {
+                ClassUtil classUtil = new ClassUtil();
+                try {
+                    List<String> temps = classUtil.scanAllClassName(dir);
+                    for (String className : temps) {
+                        logger.info("loading class: " + className);
+                        loadFXPlusClass(className, beanBuilder);
                     }
+                } catch (UnsupportedEncodingException | ClassNotFoundException exception) {
+                    logger.error("{}", exception);
                 }
             }
         }

@@ -151,4 +151,12 @@ public class StringUtil extends StringUtils {
         return result;
     }
 
+    public static String trimLeft(String src, String prefix) {
+        while (src.startsWith(prefix)) {
+            src = src.substring(1);
+        }
+
+        return src;
+    }
+
 }
