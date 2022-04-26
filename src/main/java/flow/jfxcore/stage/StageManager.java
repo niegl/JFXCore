@@ -123,9 +123,14 @@ public class StageManager {
         }
     }
 
-    public FXNotifyController getControllerProxy(String controllerName) {
-        FXNotifyController controllerProxy = initWindows.get(controllerName);
-        return controllerProxy;
+    /**
+     * 获取controller实例
+     * @param controllerName
+     * @param <T>
+     * @return
+     */
+    public <T> T getControllerProxy(String controllerName) {
+        return (T) initWindows.get(controllerName);
     }
 
     /**
