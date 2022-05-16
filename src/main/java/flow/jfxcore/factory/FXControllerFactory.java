@@ -268,7 +268,6 @@ public class FXControllerFactory {
                 FXControllerProxy.inject(fxControllerProxy,controller);
             }
         }
-
     }
 
     private static void parseData(Object fxControllerObject) {
