@@ -8,7 +8,7 @@ package flow.jfxcore.log;
  * @date 2020/5/1 10:54
  * @since JavaFX2.0 JDK1.8
  */
-public interface IPlusLogger {
+public interface ILogger {
     void debug(Object message);
 
     void debug(Object message, Throwable t);

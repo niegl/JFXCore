@@ -1,8 +1,8 @@
 package flow.jfxcore.utils;
 
 import flow.jfxcore.locale.FXLanguageLocale;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -16,7 +16,7 @@ import java.util.ResourceBundle;
  * @since JavaFX2.0 JDK1.8
  */
 public class ResourceBundleUtil {
-    private static final IPlusLogger logger = PlusLoggerFactory.getLogger(ResourceBundleUtil.class);
+    private static final ILogger logger = LoggerFactory.getLogger(ResourceBundleUtil.class);
 
     /**
      * @param baseName

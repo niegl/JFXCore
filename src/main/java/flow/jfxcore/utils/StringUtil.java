@@ -1,8 +1,8 @@
 package flow.jfxcore.utils;
 
 
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -18,7 +18,7 @@ import java.net.URLDecoder;
  * @since 1.3.0 add：继承StringUtils
  */
 public class StringUtil extends StringUtils {
-    private static IPlusLogger logger = PlusLoggerFactory.getLogger(StringUtil.class);
+    private static ILogger logger = LoggerFactory.getLogger(StringUtil.class);
 
     private StringUtil() {
     }

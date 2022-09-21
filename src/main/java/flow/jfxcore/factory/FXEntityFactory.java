@@ -2,7 +2,6 @@ package flow.jfxcore.factory;
 
 import flow.jfxcore.annotation.FXField;
 import flow.jfxcore.entity.FXFieldWrapper;
-import flow.jfxcore.core.FXPlusContext;
 import flow.jfxcore.proxy.FXEntityProxy;
 import flow.jfxcore.utils.ClassUtil;
 import javafx.beans.property.*;
@@ -49,7 +48,7 @@ public class FXEntityFactory {
         try {
             proxyObject = fxEntityProxy.getInstance(object);  // 初始化代理类
             processFXEntityProxyFields(object, proxyObject, fxEntityProxy); //处理FXEntity上的@FXField
-            FXPlusContext.setProxyByBeanObject(proxyObject, fxEntityProxy);
+//            FXPlusContext.setProxyByBeanObject(proxyObject, fxEntityProxy);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

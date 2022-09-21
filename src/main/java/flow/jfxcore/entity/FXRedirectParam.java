@@ -19,12 +19,12 @@ public class FXRedirectParam {
      * query方式的参数, like: helloController?name=JavaFx-Plus&msg=helloWorld
      * the map will store: { name -> JavaFx-Plus, msg -> helloWorld}
      */
-    private Map<String, Object> query = new HashMap<>();
+    private final Map<String, Object> query = new HashMap<>();
 
     /**
      * param方式的参数，会以map方式传递给目标Controller
      */
-    private Map<String, Object> params = new HashMap<>();
+    private final Map<String, Object> params = new HashMap<>();
 
     public FXRedirectParam(String toController) {
         this.toController = toController;

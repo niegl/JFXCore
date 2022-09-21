@@ -7,16 +7,16 @@ import org.apache.log4j.Logger;
 /**
  * 日志类。对log4j进行了二次封装
  */
-public class PlusLogger implements IPlusLogger {
-    private Logger logger;
-    private String FQCN;
+public class LoggerWrapper implements ILogger {
+    private final Logger logger;
+    private final String FQCN;
 
-    public PlusLogger(Logger logger) {
-        this.FQCN = PlusLogger.class.getName();
+    public LoggerWrapper(Logger logger) {
+        this.FQCN = LoggerWrapper.class.getName();
         this.logger = logger;
     }
 
-    public PlusLogger(String fqcn, Logger logger) {
+    public LoggerWrapper(String fqcn, Logger logger) {
         this.FQCN = fqcn;
         this.logger = logger;
     }

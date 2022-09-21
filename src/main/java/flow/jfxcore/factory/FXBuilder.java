@@ -1,7 +1,7 @@
 package flow.jfxcore.factory;
 
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since JavaFX2.0 JDK1.8
  */
 public class FXBuilder implements BeanBuilder {
-    private final IPlusLogger logger = PlusLoggerFactory.getLogger(FXBuilder.class);
+    private final ILogger logger = LoggerFactory.getLogger(FXBuilder.class);
 
     @Override
     public <T> T getBean(Class<T> type) {

@@ -1,15 +1,12 @@
 package flow.example;
 
 import flow.jfxcore.annotation.FXScan;
-import flow.jfxcore.core.FXNotifyController;
-import flow.jfxcore.core.FXPlusBootstrap;
-import flow.jfxcore.core.FXPlusContext;
+import flow.jfxcore.core.FXStarter;
 import flow.jfxcore.stage.StageManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.List;
 
 @FXScan(base = {"flow.example"})
 public class HelloApplication extends Application {
@@ -20,8 +17,8 @@ public class HelloApplication extends Application {
 //        stage.setTitle("Hello!");
 //        stage.setScene(scene);
 //        stage.show();
-        FXPlusBootstrap.start(HelloApplication.class);
-        StageManager.getInstance().showStage("HelloController#flow.example.HelloController");
+        FXStarter.start(HelloApplication.class);
+        StageManager.showStage("HelloController#flow.example.HelloController");
     }
 
     public static void main(String[] args) {

@@ -3,8 +3,8 @@ package flow.jfxcore.core;
 import flow.jfxcore.annotation.FXWindow;
 import flow.jfxcore.context.GUIState;
 import flow.jfxcore.exception.ProtocolNotSupport;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 import flow.jfxcore.utils.FileUtil;
 import flow.jfxcore.utils.StringUtil;
 import javafx.beans.value.ChangeListener;
@@ -33,7 +33,7 @@ import java.util.Map;
  * 窗体事件消息通知的基类。如果这个类的方法需要通过Cglib代理，那么方法不能设置成final方法。
  */
 public abstract class FXNotifyController {
-    private static final IPlusLogger logger = PlusLoggerFactory.getLogger(FXNotifyController.class);
+    private static final ILogger logger = LoggerFactory.getLogger(FXNotifyController.class);
 
     protected String name = "";
     private Stage stage;

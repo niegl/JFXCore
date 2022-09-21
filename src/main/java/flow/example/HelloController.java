@@ -1,20 +1,24 @@
 package flow.example;
 
 import flow.jfxcore.annotation.FXController;
+import flow.jfxcore.annotation.FXRedirect;
 import flow.jfxcore.annotation.FXWindow;
 import flow.jfxcore.core.FXNotifyController;
+import flow.jfxcore.entity.FXRedirectParam;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-@FXController(path = "/flow/jfxcore/hello-view.fxml")
-@FXWindow(title = "我的第一个JAVAFX 插件",preWidth = 400, preHeight = 300, icon = "/icon/flow.png")
+@FXController(path = "/hello.fxml")
+@FXWindow(title = "我的第一个JAVAFX 插件",preWidth = 400, preHeight = 300, mainStage = true)
 public class HelloController extends FXNotifyController {
     @FXML
     private Label welcomeText;
 
     @FXML
-    protected void onHelloButtonClick() {
+    @FXRedirect(close = false, hasOwner = true)
+    protected FXRedirectParam onHelloButtonClick() {
         welcomeText.setText("Welcome to JavaFX Application!");
+        return new FXRedirectParam("SecondController#flow.example.SecondController");
     }
 
     @Override

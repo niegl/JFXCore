@@ -2,8 +2,8 @@ package flow.jfxcore.utils;
 
 
 import flow.jfxcore.exception.ProtocolNotSupport;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import java.io.*;
 
@@ -14,7 +14,7 @@ import java.io.*;
  * @since JavaFX2.0 JDK1.8
  */
 public class FileUtil {
-    private static IPlusLogger logger = PlusLoggerFactory.getLogger(FileUtil.class);
+    private static ILogger logger = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * @param filePath

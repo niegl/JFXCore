@@ -1,59 +1,34 @@
 package flow.jfxcore.stage;
 
 import flow.jfxcore.core.FXNotifyController;
+import flow.jfxcore.dispatcher.MessageDispatcher;
 import flow.jfxcore.entity.FXRedirectParam;
 import flow.jfxcore.exception.InvalidURLException;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @version 1.1
- * @description 管理FXNotifyController代理
- * @date 2019/12/3 15:43
- * @since JavaFX2.0 JDK1.8
+ * 管理FXNotifyController代理
  */
 public class StageManager {
-    private static final IPlusLogger logger = PlusLoggerFactory.getLogger(StageManager.class);
-    private static StageManager stageManager = null;
-    private static Map<String, FXNotifyController> initWindows = new ConcurrentHashMap<>();
-    private static Map<String, Class> windowClazz = new ConcurrentHashMap<>();
-    /**
-     * @author yangsuiyu
-     * @description 1.2新增属性
-     */
-    private static ArrayDeque<FXNotifyController> windowsStack = new ArrayDeque<>();
+    private static final ILogger logger = LoggerFactory.getLogger(StageManager.class);
+    private static final Map<String, FXNotifyController> stages = new ConcurrentHashMap<>();
 
     private StageManager() {
-
-    }
-
-    /**
-     * 单例
-     *
-     * @return
-     */
-    public static synchronized StageManager getInstance() {
-        if (stageManager == null) {
-            stageManager = new StageManager();
-        }
-        return stageManager;
     }
 
     /**
      * 注册FXWindow注解的Controller
-     *
-     * @param clazz
      * @param fxBaseControllerProxy
      */
-    public void registerWindow(Class clazz, FXNotifyController fxBaseControllerProxy) {
-        fxBaseControllerProxy.getClass().getDeclaredAnnotations();
-        initWindows.put(fxBaseControllerProxy.getName(), fxBaseControllerProxy);
-        windowClazz.put(fxBaseControllerProxy.getName(), clazz);
+    public static void registerStage(FXNotifyController fxBaseControllerProxy) {
+        stages.put(fxBaseControllerProxy.getName(), fxBaseControllerProxy);
+        MessageDispatcher.registerConsumer(fxBaseControllerProxy); // 添加进入消息队列 信号功能
     }
 
     /**
@@ -61,17 +36,30 @@ public class StageManager {
      *
      * @param controllerName
      */
-    public void closeStage(String controllerName) {
-        if (initWindows.get(controllerName) != null) {
-            initWindows.get(controllerName).closeStage();
+    public static void closeStage(@NotNull String controllerName) {
+        FXNotifyController controller = stages.get(controllerName);
+        if (controller != null) {
+            controller.closeStage();
         }
     }
 
     /**
-     * @param redirectParams
-     * @Description 跳转
+     * 关闭窗口
      */
-    public void redirectTo(Object redirectParams, FXNotifyController ownerController) {
+    public static void closeStage(Object stage) {
+        if (stage instanceof FXNotifyController controller) {
+            FXNotifyController proxy = stages.get(controller.getName());
+            if (proxy != null) {
+                proxy.closeStage();
+            }
+        }
+    }
+
+    /**
+     * 携带参数跳转
+     * @param redirectParams
+     */
+    public static void redirectTo(Object redirectParams, FXNotifyController ownerController) {
         FXRedirectParam fxRedirectParam = null;
         if (redirectParams instanceof String) {
             if (((String) redirectParams).contains("?")) { //有参数，query return "SuccessController?name=ss&psw=111"
@@ -94,10 +82,13 @@ public class StageManager {
      * @param fxRedirectParam 参数
      * @param ownerController  传递参数的窗体，在没有显示传递父窗体的情况下为默认的父窗体
      */
-    private void redirectWithParams(FXRedirectParam fxRedirectParam, FXNotifyController ownerController) {
+    private static void redirectWithParams(FXRedirectParam fxRedirectParam, FXNotifyController ownerController) {
         if (fxRedirectParam != null) {
             String toControllerStr = fxRedirectParam.getToController();
-            FXNotifyController toController = initWindows.get(toControllerStr);
+            if (toControllerStr == null) {
+                return;
+            }
+            FXNotifyController toController = stages.get(toControllerStr);
             if (toController != null) {
                 logger.debug("redirecting to " + toController.getName());
                 toController.setParam(fxRedirectParam.getParams());
@@ -116,8 +107,8 @@ public class StageManager {
         }
     }
 
-    public void showStage(String controllerName) {
-        FXNotifyController controllerProxy = initWindows.get(controllerName);
+    public static void showStage(@NotNull String controllerName) {
+        FXNotifyController controllerProxy = stages.get(controllerName);
         if (controllerProxy != null) {
             controllerProxy.showStage();
         }
@@ -129,8 +120,8 @@ public class StageManager {
      * @param <T>
      * @return
      */
-    public <T> T getControllerProxy(String controllerName) {
-        return (T) initWindows.get(controllerName);
+    public static <T> T getStage(String controllerName) {
+        return (T) stages.get(controllerName);
     }
 
     /**
@@ -139,7 +130,7 @@ public class StageManager {
      * @param url
      * @return
      */
-    private FXRedirectParam getQueryParamsFromURL(String url) throws InvalidURLException {
+    private static FXRedirectParam getQueryParamsFromURL(String url) throws InvalidURLException {
         String[] items = url.split("\\?");
         if (items.length != 2) {
             throw new InvalidURLException();

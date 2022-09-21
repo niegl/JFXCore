@@ -5,30 +5,29 @@ import flow.jfxcore.annotation.FXWindow;
 import flow.jfxcore.factory.BeanBuilder;
 import flow.jfxcore.factory.FXBuilder;
 import flow.jfxcore.factory.FXControllerFactory;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
 import flow.jfxcore.utils.ClassUtil;
 import flow.jfxcore.utils.FileUtil;
 import javafx.application.Platform;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
- * @author jack
- * @version 1.0
- * @date 2019/6/25 2:54
- * @since JavaFX2.0 JDK1.8
+ * JFX启动器
  */
-public class FXPlusBootstrap {
-    private static final IPlusLogger logger = PlusLoggerFactory.getLogger(FXPlusBootstrap.class);
+public class FXStarter {
+    private static final ILogger logger = LoggerFactory.getLogger(FXStarter.class);
     private static final BeanBuilder DEFAULT_BEAN_FACTORY = new FXBuilder();
 
-    public static void start(Class clazz, BeanBuilder beanBuilder) {
-        logger.info("starting JavaFX-Plus Application");
+    public static void start(Class clazz) {
+        start(clazz, DEFAULT_BEAN_FACTORY);
+    }
+
+    private static void start(Class clazz, BeanBuilder beanBuilder) {
+        logger.info("FXStarter begin...");
         try {
             logger.info("\n" + FileUtil.readFileFromResources("banner.txt"));
         } catch (UnsupportedEncodingException e) {
@@ -48,7 +47,7 @@ public class FXPlusBootstrap {
                     logger.info("loading class: " + className);
                     Platform.runLater(() -> {
                         try {
-                            loadFXPlusClass(className, beanBuilder);
+                            loadFXClass(className, beanBuilder);
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -58,16 +57,18 @@ public class FXPlusBootstrap {
         }
     }
 
-    public static void start(Class clazz) {
-        start(clazz, DEFAULT_BEAN_FACTORY);
-    }
-
-    private static void loadFXPlusClass(String className, BeanBuilder beanBuilder) throws ClassNotFoundException {
-        Class clazz = Class.forName(className);
+    /**
+     * 加载指定包下面的class类
+     * @param className 类名
+     * @param beanBuilder 类对象生产者
+     * @throws ClassNotFoundException
+     */
+    private static void loadFXClass(String className, BeanBuilder beanBuilder) throws ClassNotFoundException {
+        Class<?> clazz = Class.forName(className);
         // 是窗口，需要初始化Stage
-        if (clazz.getAnnotation(FXWindow.class) != null) {
+        if (FXNotifyController.class.isAssignableFrom(clazz)) {
             logger.info("loading stage of class: " + className);
-            FXControllerFactory.loadStage(clazz, beanBuilder);
+            FXControllerFactory.loadStage((Class<FXNotifyController>) clazz, beanBuilder);
         }
     }
 }

@@ -4,16 +4,13 @@ import flow.jfxcore.annotation.FXController;
 import flow.jfxcore.annotation.FXData;
 import flow.jfxcore.annotation.FXWindow;
 import flow.jfxcore.core.FXNotifyController;
-import flow.jfxcore.core.FXPlusContext;
 import flow.jfxcore.core.FXWindowParser;
-import flow.jfxcore.dispatcher.MessageDispatcher;
 import flow.jfxcore.loader.FXMLLoaderExt;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
-import flow.jfxcore.proxy.FXControllerProxy;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerFactory;
+import flow.jfxcore.proxy.FXProxyCreator;
 import flow.jfxcore.stage.StageManager;
 import javafx.collections.ObservableMap;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -29,11 +26,8 @@ import java.util.List;
  * @since JavaFX2.0 JDK1.8
  */
 public class FXControllerFactory {
-    private static IPlusLogger logger = PlusLoggerFactory.getLogger(FXControllerFactory.class);
-
-    private static final BeanBuilder BEAN_BUILDER = new FXBuilder();
+    private static final ILogger logger = LoggerFactory.getLogger(FXControllerFactory.class);
     private static final FXWindowParser fxWindowAnnotationParser = new FXWindowParser();
-
 
     /**
      * 控制类的注入流程
@@ -82,17 +76,13 @@ public class FXControllerFactory {
      * @param controllerName
      * @return
      */
-    private static <T extends FXNotifyController> T getFxBaseController(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
-        return getFxBaseController0(clazz, controllerName, beanBuilder);
-    }
-
     private static <T extends FXNotifyController> T getFxBaseController0(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
 
-        FXController fxController = null;        //reflect and get FXController cn.edu.scau.biubiusuisui.annotation
-        fxController = (FXController) clazz.getDeclaredAnnotation(FXController.class);
-        T fxBaseController;
-        T fxControllerProxy = null;
+        FXController fxController = null;
+        T bean;
+        T proxy = null;
 
+        fxController = clazz.getDeclaredAnnotation(FXController.class);
         if (fxController == null) return null;
 
         FXMLLoaderExt fxmlLoader;
@@ -100,19 +90,21 @@ public class FXControllerFactory {
         String fxmlPathName = fxController.path();
         fxmlLoader = new FXMLLoaderExt(clazz.getResource(fxmlPathName));
 
-        fxBaseController = beanBuilder.getBean(clazz); //获取controller实例
-        if (fxBaseController != null) {
-            if (controllerName == null || controllerName.isEmpty()) controllerName = clazz.getName();
-            fxBaseController.setName(controllerName);
-
-            FXControllerProxy<T> controllerProxy = new FXControllerProxy<>();
-            fxControllerProxy = controllerProxy.getInstance(fxBaseController);
-            //产生代理从而实现赋能
-            fxmlLoader.setController(fxControllerProxy);
+        bean = beanBuilder.getBean(clazz); //获取controller实例
+        if (bean == null) {
+            return null;
         }
 
-        if (fxControllerProxy != null) {
-            fxControllerProxy.onLoad(); //页面加载
+        if (controllerName == null || controllerName.isEmpty()) controllerName = clazz.getName();
+        bean.setName(controllerName);
+
+        FXProxyCreator<T> proxyCreator = new FXProxyCreator<>();
+        proxy = proxyCreator.getInstance(bean);
+        //产生代理从而实现赋能
+        fxmlLoader.setController(proxy);
+
+        if (proxy != null) {
+            proxy.onLoad(); //页面加载
             try {
                 fxmlLoader.load();
             } catch (IOException e) {
@@ -120,26 +112,13 @@ public class FXControllerFactory {
                 e.printStackTrace();
                 return null;
             }
-            fxControllerProxy.setRoot(fxmlLoader.getRoot());
-//            fxBaseController.setRoot(fxmlLoader.getRoot());
+            proxy.setRoot(fxmlLoader.getRoot());
+//            bean.setRoot(fxmlLoader.getRoot());
 
-            register(clazz, fxBaseController, fxControllerProxy);
+            StageManager.registerStage(proxy);
         }
 
-        return fxControllerProxy;
-    }
-
-
-    /**
-     * 将代理对象和目标对象注册
-     *
-     * @param fxBaseController      目标对象
-     * @param fxBaseControllerProxy 代理对象
-     */
-    private static void register(Class clazz, FXNotifyController fxBaseController, FXNotifyController fxBaseControllerProxy) {
-        FXPlusContext.registerController(fxBaseController); //保存原生
-        StageManager.getInstance().registerWindow(clazz, fxBaseControllerProxy);  //注册舞台、代理
-        MessageDispatcher.getInstance().registerConsumer(fxBaseController, fxBaseControllerProxy); // 添加进入消息队列 信号功能
+        return proxy;
     }
 
     /**
@@ -148,27 +127,29 @@ public class FXControllerFactory {
      * @return
      * @Description 为有FXWindow注解的类创建Stage
      */
-    private static Stage createWindow(FXWindow fxWindow, Class clazz, FXNotifyController fxControllerProxy) {
-
-        if (fxControllerProxy == null) return null;
+    private static Stage createWindow(FXWindow fxWindow, Class<FXNotifyController> clazz, FXNotifyController proxy) {
+        if (fxWindow == null) {
+            logger.error("creating window  without FXWindow Annotation:" + clazz.getName());
+            return null;
+        }
 
 //        logger.info("creating window.....");
         Stage stage = new Stage();
-        fxControllerProxy.setStage(stage);
+        proxy.setStage(stage);
 
-        Pane root = fxControllerProxy.getRoot();
+        Pane root = proxy.getRoot();
         double preWidth = fxWindow.preWidth() == 0 ? root.getPrefWidth() : fxWindow.preWidth();
         double preHeight = fxWindow.preHeight() == 0 ? root.getPrefHeight() : fxWindow.preHeight();
         Scene scene = new Scene(root, preWidth, preHeight);
 
         stage.setScene(scene);
-        fxWindowAnnotationParser.parse(stage, fxControllerProxy, fxWindow);
+        fxWindowAnnotationParser.parse(stage, proxy, fxWindow);
 
         // 此处设置生命周期中的onShow,onHide,onClose
-        fxControllerProxy.initLifeCycle();
+        proxy.initLifeCycle();
 
         if (fxWindow.mainStage()) {  //当是主舞台时，先show为敬
-            fxControllerProxy.showStage();
+            proxy.showStage();
         }
         return stage;
     }
@@ -184,90 +165,29 @@ public class FXControllerFactory {
      * @param clazz
      * @param beanBuilder
      */
-    public static void loadStage(Class clazz, BeanBuilder beanBuilder) {
-        FXWindow declaredAnnotation = (FXWindow) clazz.getDeclaredAnnotation(FXWindow.class);
-        //只有当用了FXWindow注解，才会注册Stage
-        if (declaredAnnotation != null) {
-            getFXWindow(clazz, null, beanBuilder);
+    public static void loadStage(Class<FXNotifyController> clazz, BeanBuilder beanBuilder) {
+        FXWindow windowAnnotation = clazz.getDeclaredAnnotation(FXWindow.class);
+        FXController controllerAnnotation = clazz.getDeclaredAnnotation(FXController.class);
+
+        if (controllerAnnotation == null) {
+            logger.error("FXWindow Annotation without FXController:" + clazz.getName());
+            return;
         }
-    }
 
-    public static FXNotifyController getFXController(Class clazz) {
-        return getFXController(clazz, BEAN_BUILDER);
-    }
-
-    public static FXNotifyController getFXController(Class clazz, BeanBuilder beanBuilder) {
-        FXNotifyController fxBaseController = getFXController(clazz, null, beanBuilder);
-        return fxBaseController;
-    }
-
-    public static /*FXNotifyController*/<T  extends FXNotifyController> T getFXController(Class<T> clazz, String controllerName) {
-        return getFXController(clazz, controllerName, BEAN_BUILDER);
-    }
-
-    public static <T extends FXNotifyController> T getFXController(Class<T> clazz, String controllerName, BeanBuilder beanBuilder) {
-        return getFxBaseController(clazz, controllerName, beanBuilder);
-    }
-
-
-    public static Stage getFXWindow(Class clazz) {
-        FXWindow fxWindow = (FXWindow) clazz.getDeclaredAnnotation(FXWindow.class);
-        if (fxWindow != null) {
-            FXNotifyController fxController = getFXController(clazz);
-            return createWindow(fxWindow, clazz, fxController);
-        } else {
-            return null;
-        }
-    }
-
-    public static Stage getFXWindow(Class clazz, BeanBuilder beanBuilder) {
-        FXWindow fxWindow = (FXWindow) clazz.getDeclaredAnnotation(FXWindow.class);
-        if (fxWindow != null) {
-            FXNotifyController fxController = getFXController(clazz, beanBuilder);
-            return createWindow(fxWindow, clazz, fxController);
-        } else {
-            return null;
-        }
-    }
-
-    public static Stage getFXWindow(Class clazz, String controllerName) {
-        FXWindow fxWindow = (FXWindow) clazz.getDeclaredAnnotation(FXWindow.class);
-        if (fxWindow != null) {
-            FXNotifyController fxController = getFXController(clazz, controllerName);
-            return createWindow(fxWindow, clazz, fxController);
-        } else {
-            return null;
-        }
-    }
-
-    public static Stage getFXWindow(Class clazz, String controllerName, BeanBuilder beanBuilder) {
-        FXWindow fxWindow = (FXWindow) clazz.getDeclaredAnnotation(FXWindow.class);
-        if (fxWindow != null) {
-            FXNotifyController fxControllerProxy = getFXController(clazz, controllerName);
-            Stage stage = createWindow(fxWindow, clazz, fxControllerProxy);
-            return stage;
-        } else {
-            return null;
+        FXNotifyController proxy = getFXController(clazz, beanBuilder);
+        if (proxy != null) {
+            createWindow(windowAnnotation, clazz, proxy);
         }
     }
 
     /**
-     * 代理对象与被代理对象数据同步
-     * @param fxControllerProxy 代理对象
+     * 加载FXXML并赋代理
+     * @param clazz
+     * @param beanBuilder
+     * @return 代理对象
      */
-    private static void sync(FXNotifyController fxControllerProxy) {
-        String name = fxControllerProxy.getName();
-        if (name.isEmpty()) {
-            return;
-        }
-
-        List<FXNotifyController> controllerList = FXPlusContext.getControllers(name);
-        if (controllerList != null) {
-            for (FXNotifyController controller :
-                    controllerList) {
-                FXControllerProxy.inject(fxControllerProxy,controller);
-            }
-        }
+    private static FXNotifyController getFXController(Class<FXNotifyController> clazz, BeanBuilder beanBuilder) {
+        return getFxBaseController0(clazz, null, beanBuilder);
     }
 
     private static void parseData(Object fxControllerObject) {
@@ -344,7 +264,7 @@ public class FXControllerFactory {
 //        }
     }
 
-    private static boolean isFXWindow(Class clazz) {
+    private static boolean isFXWindow(Class<?> clazz) {
         if (clazz.getDeclaredAnnotation(FXWindow.class) != null) {
             return true;
         } else {

@@ -1,7 +1,5 @@
 package flow.jfxcore.entity;
 
-import flow.jfxcore.core.FXNotifyController;
-
 import java.lang.reflect.Method;
 
 /**
@@ -12,23 +10,23 @@ public class MethodEntity<T> {
     /**
      * 所属Controller
      */
-    private T notifyController;
+    private T receiver;
     /**
      * 实际方法
      */
     private Method method;
 
     public MethodEntity(T fxBaseController, Method method) {
-        this.notifyController = fxBaseController;
+        this.receiver = fxBaseController;
         this.method = method;
     }
 
-    public T getNotifyController() {
-        return notifyController;
+    public T getReceiver() {
+        return receiver;
     }
 
-    public void setNotifyController(T notifyController) {
-        this.notifyController = notifyController;
+    public void setReceiver(T receiver) {
+        this.receiver = receiver;
     }
 
     public Method getMethod() {

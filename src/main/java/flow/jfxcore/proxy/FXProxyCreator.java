@@ -8,18 +8,20 @@ import flow.jfxcore.stage.StageManager;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * 负责拦截FXSender或FXRedirect的方法，并将结果发送给目标对象.
+ * 负责拦截FXSender或FXRedirect的方法，并将结果发送给目标对象.<p>
  * This proxy class intercept Methods that has special annotation such as
  * FXSender which is a mark for message queue
  */
-public class FXControllerProxy<T extends FXNotifyController> implements MethodInterceptor {
+public class FXProxyCreator<T> implements MethodInterceptor {
 
     T target;
 
@@ -37,52 +39,55 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
 
     /**
      * 运行FXSender的方法，并将结果发送给 FXSender指定的对象。
-     * @param o 为由CGLib动态生成的代理类实例
-     * @param method Method为上文中实体类所调用的被代理的方法引用
-     * @param objects Object[]为参数值列表
-     * @param methodProxy MethodProxy为生成的代理类对方法的代理引用
+     Params:
+     * @param obj "this", the enhanced object
+     * @param method intercepted Method
+     * @param args argument array; primitive types are wrapped
+     * @param proxy used to invoke super (non-intercepted method); may be called
+     * as many times as needed
      * @return
      * @throws Throwable
      */
     @Override
-    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        Object o1 = methodProxy.invokeSuper(o, objects);  //获取该方法运行后的结果
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        Object result = proxy.invokeSuper(obj, args);  //获取该方法运行后的结果
         Annotation[] annotations = method.getDeclaredAnnotations();
+
+        // 如果没有给任何的 消息发送或跳转参数，则返回
+        if (result == null) {
+            return null;
+        }
 
         for (Annotation annotation : annotations) {
             if (FXSender.class.equals(annotation.annotationType())) {  // 拦截是否发送消息函数
                 FXSender fxSender = (FXSender) annotation;
-                String name = target.getName() + ":";
-                if ("".equals(fxSender.name())) {
-                    name += method.getName();
-                } else {
-                    name += fxSender.name();
+                String queue = fxSender.name();
+                if (queue.isEmpty()) {
+                    queue = method.getName();
                 }
-                MessageDispatcher.getInstance().sendMessage(name, o1);
-            }
-            if (FXRedirect.class.equals((annotation.annotationType()))) {  //拦截是否重定向函数
+                MessageDispatcher.sendMessageSync(queue, result);
+            } else if (FXRedirect.class.equals((annotation.annotationType()))) {  //拦截是否重定向函数
                 FXRedirect fxRedirect = (FXRedirect) annotation;
+                //关闭原窗口
+                if (fxRedirect.close()) {
+                    StageManager.closeStage(target);
+                }
 
-                // 如果没有给任何的跳转参数，则不跳转
-                if (o1 == null) {
-                    continue;
-                }
-                if (fxRedirect.close()) {  //关闭原窗口
-                    StageManager.getInstance().closeStage(target.getName());
-                }
                 if (fxRedirect.hasOwner()) {
-                    FXNotifyController proxyOwner = StageManager.getInstance().getControllerProxy(fxRedirect.owner());
+                    FXNotifyController proxyOwner = StageManager.getStage(fxRedirect.owner());
                     if (proxyOwner != null) {
-                        StageManager.getInstance().redirectTo(o1, proxyOwner);
+                        StageManager.redirectTo(result, proxyOwner);
                     } else {
-                        if (o instanceof FXNotifyController) StageManager.getInstance().redirectTo(o1, (FXNotifyController)o);
+                        if (obj instanceof FXNotifyController controller) {
+                            StageManager.redirectTo(result, controller);
+                        }
                     }
                 } else {
-                    StageManager.getInstance().redirectTo(o1, null);
+                    StageManager.redirectTo(result, null);
                 }
             }
         }
-        return o1;
+        return result;
     }
 
     /**
@@ -90,22 +95,24 @@ public class FXControllerProxy<T extends FXNotifyController> implements MethodIn
      * @param target 被代理对象
      * @param proxy 代理对象
      */
-    public static void inject(Object target, Object proxy) {
+    public static void inject(@NotNull Object target, @NotNull Object proxy) {
+
         Class<?> clazz = target.getClass();
         while (clazz != null) {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 //如：private、static、final等
-                int fieldValue = field.getModifiers();
+                int fieldModifiers = field.getModifiers();
                 //与某个具体的修饰符进行比较
-                if (Modifier.isFinal(fieldValue)) {
+                if (Modifier.isFinal(fieldModifiers)) {
                     continue;
                 }
-                field.setAccessible(true);
+
                 try {
+                    field.setAccessible(true);
                     Object value = field.get(target);
                     field.set(proxy, value);
-                } catch (IllegalAccessException e) {
+                } catch (InaccessibleObjectException | IllegalArgumentException|IllegalAccessException|SecurityException e) {
                     e.printStackTrace();
                 }
             }

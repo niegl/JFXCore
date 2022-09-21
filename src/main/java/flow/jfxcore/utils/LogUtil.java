@@ -1,8 +1,8 @@
 package flow.jfxcore.utils;
 
 
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLogger;
+import flow.jfxcore.log.ILogger;
+import flow.jfxcore.log.LoggerWrapper;
 import org.apache.log4j.Logger;
 
 /**
@@ -14,11 +14,11 @@ import org.apache.log4j.Logger;
  */
 public class LogUtil {
     private static final String FQCN = LogUtil.class.getName();
-    private static IPlusLogger logger;
+    private static ILogger logger;
 
     static {
         initLog4jBase();
-        logger = new PlusLogger(FQCN, Logger.getLogger(LogUtil.class));
+        logger = new LoggerWrapper(FQCN, Logger.getLogger(LogUtil.class));
     }
 
     public static void initLog4jBase() {

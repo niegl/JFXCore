@@ -1,10 +1,7 @@
 package flow.jfxcore.dispatcher;
 
 import flow.jfxcore.annotation.FXReceiver;
-import flow.jfxcore.core.FXNotifyController;
 import flow.jfxcore.entity.MethodEntity;
-import flow.jfxcore.log.IPlusLogger;
-import flow.jfxcore.log.PlusLoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -25,69 +22,56 @@ public class MessageDispatcher {
      */
     private static final Map<String, List<MethodEntity<Object>>> receivers = new ConcurrentHashMap<>();
 
-    private static MessageDispatcher messageQueue = null;
-
     private MessageDispatcher() {
     }
 
     /**
-     * 获取mq单例
-     *
-     * @return MessageQueue
-     */
-    public static synchronized MessageDispatcher getInstance() {
-        if (messageQueue == null) {
-            messageQueue = new MessageDispatcher();
-        }
-        return messageQueue;
-    }
-
-    /**
-     * @param notifyController  基础controller
-     * @param controllerProxy 基础controller代理
      * @description 注册消费者，即FXReceiver注解的method
+     * @param consumer  消费者
      */
-    public void registerConsumer(Object notifyController, Object controllerProxy) {
-        Class clazz = notifyController.getClass();
+    public static void registerConsumer(Object consumer) {
+        Class clazz = consumer.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getDeclaredAnnotations();
             for (Annotation annotation : annotations) {
                 if (FXReceiver.class.equals(annotation.annotationType())) {
-                    FXReceiver consumer = (FXReceiver) annotation;
-                    MethodEntity<Object> fxMethodEntity = new MethodEntity<>(controllerProxy, method);
-                    List<MethodEntity<Object>> fxMethodEntities = receivers.get(consumer.name());
-                    if (fxMethodEntities == null) {
-                        fxMethodEntities = new ArrayList<>();
-                    }
+                    FXReceiver fxReceiver = (FXReceiver) annotation;
+                    List<MethodEntity<Object>> fxMethodEntities = receivers.computeIfAbsent(fxReceiver.name(), k-> new ArrayList<>());
+
+                    MethodEntity<Object> fxMethodEntity = new MethodEntity<>(consumer, method);
                     fxMethodEntities.add(fxMethodEntity);
-                    receivers.put(consumer.name(), fxMethodEntities);
                 }
             }
         }
     }
 
     /**
+     * description 处理消息发送
      * @param topic  消息topic
      * @param msg 消息内容
-     * @description 处理消息发送
-     */
-    public void sendMessage(String topic, Object... msg) {
-        List<MethodEntity<Object>> lists = receivers.get(topic);
-        if (lists == null || lists.isEmpty()) return;
 
-        for (var fxMethodEntity : lists) {
-            Method method = fxMethodEntity.getMethod();
+     */
+    public static void sendMessageSync(String topic, Object... msg) {
+        List<MethodEntity<Object>> entities = receivers.get(topic);
+        if (entities == null || entities.isEmpty()) {
+            return;
+        }
+
+        for (var entity : entities) {
+            Object receiver = entity.getReceiver();
+            Method method = entity.getMethod();
             try {
-                method.setAccessible(true);
-                Object notifyController = fxMethodEntity.getNotifyController();
-//                if (method.getParameterCount() == 0) {
-//                    method.invoke(notifyController);
-//                } else {
+                if (!method.canAccess(receiver)) {
+                    continue;
+                }
+                if (method.getParameterCount() == 0) {
+                    method.invoke(receiver);
+                } else {
                     // 调起FXReceiver注解的方法
-                    method.invoke(notifyController, msg);
-//                }
-            } catch (IllegalAccessException | InvocationTargetException e) {
+                    method.invoke(receiver, msg);
+                }
+            } catch (IllegalAccessException | InvocationTargetException |IllegalArgumentException |NullPointerException e) {
                 e.printStackTrace();
             }
         }
