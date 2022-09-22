@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>flow</groupId>
-    <artifactId>jfxcore</artifactId>
+    <artifactId>javafx-handy</artifactId>
     <version>18</version>
-    <name>JFXCore</name>
+    <name>javafx-handy</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -82,7 +82,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>flow.jfxcore/flow.jfxcore.HelloApplication</mainClass>
+                            <mainClass>javafx.jfxcore/javafx.handy.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
