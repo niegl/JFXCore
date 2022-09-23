@@ -6,7 +6,7 @@
 
     <groupId>flow</groupId>
     <artifactId>javafx-handy</artifactId>
-    <version>18</version>
+    <version>19</version>
     <name>javafx-handy</name>
 
     <properties>
@@ -18,18 +18,18 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>18.0.2</version>
+            <version>19</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>18.0.2</version>
+            <version>19</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>18.0.2</version>
+            <version>19</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>

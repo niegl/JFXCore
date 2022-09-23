@@ -1,6 +1,6 @@
 package javafx.handy.stage;
 
-import javafx.handy.starer.FXNotifyController;
+import javafx.handy.starter.FXNotifyController;
 import javafx.handy.dispatcher.MessageDispatcher;
 import javafx.handy.entity.FXRedirectParam;
 import javafx.handy.exception.InvalidURLException;

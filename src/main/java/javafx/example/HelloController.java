@@ -3,7 +3,7 @@ package javafx.example;
 import javafx.handy.annotation.FXController;
 import javafx.handy.annotation.FXRedirect;
 import javafx.handy.annotation.FXWindow;
-import javafx.handy.starer.FXNotifyController;
+import javafx.handy.starter.FXNotifyController;
 import javafx.handy.entity.FXRedirectParam;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

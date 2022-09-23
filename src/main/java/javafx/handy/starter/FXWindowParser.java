@@ -1,4 +1,4 @@
-package javafx.handy.starer;
+package javafx.handy.starter;
 
 import javafx.handy.annotation.FXWindow;
 import javafx.handy.log.ILogger;

@@ -2,7 +2,7 @@ package javafx.handy.proxy;
 
 import javafx.handy.annotation.FXRedirect;
 import javafx.handy.annotation.FXSender;
-import javafx.handy.starer.FXNotifyController;
+import javafx.handy.starter.FXNotifyController;
 import javafx.handy.dispatcher.MessageDispatcher;
 import javafx.handy.stage.StageManager;
 import net.sf.cglib.proxy.Enhancer;

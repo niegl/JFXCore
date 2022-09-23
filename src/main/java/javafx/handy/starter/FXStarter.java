@@ -1,18 +1,16 @@
-package javafx.handy.starer;
+package javafx.handy.starter;
 
+import javafx.handy.annotation.FXReceiver;
 import javafx.handy.annotation.FXScan;
-import javafx.handy.annotation.FXWindow;
+import javafx.handy.dispatcher.MessageDispatcher;
 import javafx.handy.factory.BeanBuilder;
 import javafx.handy.factory.FXBuilder;
 import javafx.handy.factory.FXControllerFactory;
 import javafx.handy.log.ILogger;
 import javafx.handy.log.LoggerFactory;
 import javafx.handy.utils.ClassUtil;
-import javafx.handy.utils.FileUtil;
 import javafx.application.Platform;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.util.List;
 
 /**
@@ -64,6 +62,8 @@ public class FXStarter {
             if (FXNotifyController.class.isAssignableFrom(clazz)) {
                 logger.info("loading stage of class: " + className);
                 FXControllerFactory.loadStage((Class<FXNotifyController>) clazz, beanBuilder);
+            } else if (clazz.getDeclaredAnnotation(FXReceiver.class) != null) {
+                MessageDispatcher.registerConsumer(clazz);
             }
         } catch (ClassNotFoundException e) {
             logger.error("loading stage exception, class: " + className);
