@@ -1,8 +1,8 @@
 package javafx.handy.utils;
 
 import javafx.handy.locale.FXLanguageLocale;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -15,8 +15,8 @@ import java.util.ResourceBundle;
  * @date 2020/5/1 11:15
  * @since JavaFX2.0 JDK1.8
  */
+@Slf4j
 public class ResourceBundleUtil {
-    private static final ILogger logger = LoggerFactory.getLogger(ResourceBundleUtil.class);
 
     /**
      * @param baseName
@@ -78,7 +78,7 @@ public class ResourceBundleUtil {
         try {
             return resource.getString(key);
         } catch (MissingResourceException | ClassCastException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
 //            e.printStackTrace();
             return "";
         }
@@ -96,7 +96,7 @@ public class ResourceBundleUtil {
         try {
             return Integer.valueOf(resource.getString(key));
         } catch (MissingResourceException | NumberFormatException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
 //            e.printStackTrace();
             return -1;
         }

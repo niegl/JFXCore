@@ -6,18 +6,18 @@ import javafx.handy.dispatcher.MessageDispatcher;
 import javafx.handy.factory.BeanBuilder;
 import javafx.handy.factory.FXBuilder;
 import javafx.handy.factory.FXControllerFactory;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
 import javafx.handy.utils.ClassUtil;
 import javafx.application.Platform;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * JFX启动器
  */
+@Slf4j
 public class FXStarter {
-    private static final ILogger logger = LoggerFactory.getLogger(FXStarter.class);
+
     private static final BeanBuilder DEFAULT_BEAN_FACTORY = new FXBuilder();
 
     public static void start(Class<?> clazz) {
@@ -25,7 +25,7 @@ public class FXStarter {
     }
 
     private static void start(Class<?> clazz, BeanBuilder beanBuilder) {
-        logger.info("FXStarter begin...");
+        log.info("FXStarter begin...");
 
         String[] basePackage = null;
         FXScan scanAnnotation = clazz.getDeclaredAnnotation(FXScan.class);
@@ -48,7 +48,7 @@ public class FXStarter {
             allClassName.forEach( className -> Platform.runLater(() -> loadFXClass(className, beanBuilder)));
         }
 
-        logger.info("FXStarter end...");
+        log.info("FXStarter end...");
     }
     /**
      * 加载指定包下面的class类
@@ -60,13 +60,13 @@ public class FXStarter {
             Class<?> clazz = Class.forName(className);
             // 是窗口，需要初始化Stage
             if (FXNotifyController.class.isAssignableFrom(clazz)) {
-                logger.info("loading stage of class: " + className);
+                log.info("loading stage of class: " + className);
                 FXControllerFactory.loadStage((Class<FXNotifyController>) clazz, beanBuilder);
             } else if (clazz.getDeclaredAnnotation(FXReceiver.class) != null) {
                 MessageDispatcher.registerConsumer(clazz);
             }
         } catch (ClassNotFoundException e) {
-            logger.error("loading stage exception, class: " + className);
+            log.error("loading stage exception, class: " + className);
         }
 
     }

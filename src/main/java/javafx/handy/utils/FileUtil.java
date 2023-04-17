@@ -2,8 +2,7 @@ package javafx.handy.utils;
 
 
 import javafx.handy.exception.ProtocolNotSupport;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import java.io.*;
 
@@ -13,8 +12,8 @@ import java.io.*;
  * @date 2019/6/25 7:01
  * @since JavaFX2.0 JDK1.8
  */
+@Slf4j
 public class FileUtil {
-    private static ILogger logger = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * @param filePath
@@ -52,7 +51,7 @@ public class FileUtil {
             }
             return content.toString();
         } catch (IOException e) {
-            logger.error("reading file error", e);
+            log.error("reading file error", e);
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -75,7 +74,7 @@ public class FileUtil {
                 content.append(temp + "\r\n");
             }
         } catch (IOException e) {
-            logger.error("reading file error", e);
+            log.error("reading file error", e);
         }
         return content.toString();
     }
@@ -96,7 +95,7 @@ public class FileUtil {
                 out.flush(); // 把缓存区内容压入文件
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             e.printStackTrace();
         }
     }

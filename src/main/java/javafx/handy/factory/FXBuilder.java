@@ -1,7 +1,6 @@
 package javafx.handy.factory;
 
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -11,8 +10,8 @@ import java.lang.reflect.InvocationTargetException;
  * @date 2019/7/4 11:13
  * @since JavaFX2.0 JDK1.8
  */
+@Slf4j
 public class FXBuilder implements BeanBuilder {
-    private final ILogger logger = LoggerFactory.getLogger(FXBuilder.class);
 
     @Override
     public <T> T getBean(Class<T> type) {
@@ -20,7 +19,7 @@ public class FXBuilder implements BeanBuilder {
         try {
             object = type.getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             e.printStackTrace();
         }
         return object;

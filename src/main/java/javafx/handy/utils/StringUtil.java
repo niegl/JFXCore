@@ -1,8 +1,7 @@
 package javafx.handy.utils;
 
 
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -17,8 +16,8 @@ import java.net.URLDecoder;
  * @since JavaFX2.0 JDK1.8
  * @since 1.3.0 add：继承StringUtils
  */
+@Slf4j
 public class StringUtil extends StringUtils {
-    private static ILogger logger = LoggerFactory.getLogger(StringUtil.class);
 
     private StringUtil() {
     }

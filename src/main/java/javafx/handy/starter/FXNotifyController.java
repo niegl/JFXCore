@@ -3,8 +3,6 @@ package javafx.handy.starter;
 import javafx.handy.annotation.FXWindow;
 import javafx.handy.context.GUIState;
 import javafx.handy.exception.ProtocolNotSupport;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
 import javafx.handy.utils.FileUtil;
 import javafx.handy.utils.StringUtil;
 import javafx.beans.value.ChangeListener;
@@ -13,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -32,8 +31,8 @@ import java.util.Map;
 /**
  * 窗体事件消息通知的基类。如果这个类的方法需要通过Cglib代理，那么方法不能设置成final方法。
  */
+@Slf4j
 public abstract class FXNotifyController {
-    private static final ILogger logger = LoggerFactory.getLogger(FXNotifyController.class);
 
     protected String name = "";
     private Stage stage;
@@ -80,7 +79,7 @@ public abstract class FXNotifyController {
             try {
                 onShow();
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                log.error(e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -92,7 +91,7 @@ public abstract class FXNotifyController {
             try {
                 onClose();
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                log.error(e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -123,7 +122,7 @@ public abstract class FXNotifyController {
                     onShow(); //取消最小化
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                log.error(e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -208,9 +207,9 @@ public abstract class FXNotifyController {
     public void setWindowTitle(String title) {
         if (this.isWindow) {
             this.stage.setTitle(title);
-            logger.info("setting title of window");
+            log.info("setting title of window");
         } else {
-            logger.warn("the controller is not window");
+            log.warn("the controller is not window");
         }
     }
 
@@ -228,10 +227,10 @@ public abstract class FXNotifyController {
                         this.stage.getIcons().clear();
                         this.stage.getIcons().add(new Image(iconUrl));
                     } else {
-                        logger.warn("the icon file has not existed");
+                        log.warn("the icon file has not existed");
                     }
                 } catch (ProtocolNotSupport exception) {
-                    logger.error(exception.getMessage(), exception);
+                    log.error(exception.getMessage(), exception);
                 }
             }
         }

@@ -4,9 +4,8 @@ import javafx.handy.starter.FXNotifyController;
 import javafx.handy.dispatcher.MessageDispatcher;
 import javafx.handy.entity.FXRedirectParam;
 import javafx.handy.exception.InvalidURLException;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -15,8 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 管理FXNotifyController代理
  */
+@Slf4j
 public class StageManager {
-    private static final ILogger logger = LoggerFactory.getLogger(StageManager.class);
+
     private static final Map<String, FXNotifyController> stages = new ConcurrentHashMap<>();
 
     private StageManager() {
@@ -90,7 +90,7 @@ public class StageManager {
             }
             FXNotifyController toController = stages.get(toControllerStr);
             if (toController != null) {
-                logger.debug("redirecting to " + toController.getName());
+                log.debug("redirecting to " + toController.getName());
                 toController.setParam(fxRedirectParam.getParams());
                 toController.setQuery(fxRedirectParam.getQueryMap());
                 Stage toControllerStage = toController.getStage();

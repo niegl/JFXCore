@@ -1,16 +1,13 @@
 package javafx.handy.starter;
 
 import javafx.handy.annotation.FXWindow;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
 import javafx.scene.Scene;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- */
+@Slf4j
 public class FXWindowParser {
-    private static final ILogger logger = LoggerFactory.getLogger(FXWindowParser.class);
 
     public void parse(Stage stage, FXNotifyController controllerProxy, FXWindow fxWindow) {
 //        logger.info("parsing @FXWindow of class: " + controllerProxy.getName());

@@ -6,14 +6,13 @@ import javafx.handy.annotation.FXWindow;
 import javafx.handy.starter.FXNotifyController;
 import javafx.handy.starter.FXWindowParser;
 import javafx.handy.loader.FXMLLoaderExt;
-import javafx.handy.log.ILogger;
-import javafx.handy.log.LoggerFactory;
 import javafx.handy.proxy.FXProxyCreator;
 import javafx.handy.stage.StageManager;
 import javafx.collections.ObservableMap;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -24,8 +23,8 @@ import java.lang.reflect.Field;
  * @date 2019/6/25 8:12
  * @since JavaFX2.0 JDK1.8
  */
+@Slf4j
 public class FXControllerFactory {
-    private static final ILogger logger = LoggerFactory.getLogger(FXControllerFactory.class);
     private static final FXWindowParser fxWindowAnnotationParser = new FXWindowParser();
 
     /**
@@ -85,7 +84,7 @@ public class FXControllerFactory {
         if (fxController == null) return null;
 
         FXMLLoaderExt fxmlLoader;
-        logger.info("loading the FXML file of " + clazz.getName());
+        log.info("loading the FXML file of " + clazz.getName());
         String fxmlPathName = fxController.path();
         fxmlLoader = new FXMLLoaderExt(clazz.getResource(fxmlPathName));
 
@@ -110,7 +109,7 @@ public class FXControllerFactory {
                 StageManager.registerStage(proxy);
             }
         } catch (IOException e) {
-            logger.error("FXMLLoader load failed! ");
+            log.error("FXMLLoader load failed! ");
             e.printStackTrace();
             return null;
         }
@@ -126,7 +125,7 @@ public class FXControllerFactory {
      */
     private static Stage createWindow(FXWindow fxWindow, Class<FXNotifyController> clazz, FXNotifyController proxy) {
         if (fxWindow == null) {
-            logger.error("creating window  without FXWindow Annotation:" + clazz.getName());
+            log.error("creating window  without FXWindow Annotation:" + clazz.getName());
             return null;
         }
 
@@ -167,7 +166,7 @@ public class FXControllerFactory {
         FXController controllerAnnotation = clazz.getDeclaredAnnotation(FXController.class);
 
         if (controllerAnnotation == null || windowAnnotation == null) {
-            logger.error("FXWindow Annotation without FXController or FXWindow:" + clazz.getName());
+            log.error("FXWindow Annotation without FXController or FXWindow:" + clazz.getName());
             return;
         }
 
@@ -200,7 +199,7 @@ public class FXControllerFactory {
                     Object fieldValueProxy = FXEntityFactory.wrapFXBean(fieldValue);
                     field.set(fxControllerObject, fieldValueProxy);
                 } catch (IllegalAccessException e) {
-                    logger.error(e.getMessage());
+                    log.error(e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -225,7 +224,7 @@ public class FXControllerFactory {
                     Object fieldValue = field.get(object);
                     namespace.put(fx_id, fieldValue);
                 } catch (IllegalAccessException e) {
-                    logger.error(e.getMessage());
+                    log.error(e.getMessage());
                     e.printStackTrace();
                 }
             }
